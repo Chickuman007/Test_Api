@@ -33,16 +33,26 @@ def landing():
 
 @app.route("/api/chatbot",methods=["POST","GET"])
 def api_chatbot():
-    response=None
-
     if request.method=="POST":
-        question=request.form.get("question")
-        if question:
-            response=new_chatbot(question)
+        question = request.form.get("question")
+    
+        # JSON payload support
+        if not question and request.is_json:
+            data = request.get_json()
+            question = data.get("question")
+    
+        if not question:
             return jsonify({
-                "status": "success",
-                "answer": response
-            })
+                "status": "error",
+                "message": "No question provided"
+            }), 400
+    
+        answer = new_chatbot(question)
+    
+        return jsonify({
+            "status": "success",
+            "answer": answer
+        })
 
 
 
